@@ -70,3 +70,18 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+.dancing-script {
+  font-family: "Dancing Script", serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.playwrite-in {
+  font-family: "Playwrite IN", serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}

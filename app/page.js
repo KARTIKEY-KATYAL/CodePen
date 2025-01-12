@@ -1,11 +1,9 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import Hero from "@/components/custom/Hero.jsx";
 
 export default function Home() {
   return (
     <div>
-      <h2>Hello World</h2>
-      <Button>Hello</Button>
+     <Hero/>
     </div>
   );
 }
