@@ -3,30 +3,46 @@ import Lookup from "@/data/Lookup";
 import { ArrowRight, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useContext } from "react";
-import { MessageContext } from "@/context/MessagesContext";
+import { MessagesContext } from "@/context/MessagesContext";
 import { useState } from "react";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import SignInDialog from "./SignInDialog";
-
-
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useRouter } from "next/navigation";
 
 function Hero() {
     const [userInput, setuserInput] = useState();
-    const { Messages, setMessages } = useContext(MessageContext);
+    const { Messages, setMessages } = useContext(MessagesContext);
     const {User,setUser} = useContext(UserDetailContext);
     const [openDialog, setopenDialog] = useState(false)
+    const CreateWorkspace = useMutation(api.workspace.CreateWorkSpace)
+    const router = useRouter()
 
-    const onGenerate = (input) =>{
-        if (!User?.name){
-            setopenDialog(true)
-            return ;
-        }
-        setMessages({
-            role:'user',
-            content:input
-        })
-        // console.log(input);        
+  const onGenerate = async (input) => {
+    if (!User?.name) {
+      setopenDialog(true);
+      return;
     }
+
+    const msg = {
+      role: "user",
+      content: input,
+    };
+
+    setMessages((prevMessages) => [...prevMessages, msg]);
+
+    console.log(input);
+
+    // Wrap the msg in an array when passing to the mutation
+    const WorkspaceId = await CreateWorkspace({
+      user: User._id,
+      messages: [msg], // Send messages as an array of objects
+    });
+
+    router.push("/workspace/" + WorkspaceId);
+  };
+
 
   return (
     <div className="flex flex-col items-center mt-36 xl:mt-52 gap-4 px-4">

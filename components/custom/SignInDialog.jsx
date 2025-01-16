@@ -13,9 +13,14 @@ import { Button } from "../ui/button";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import { useMutation } from "convex/react";
+import { v4 as uuidv4 } from "uuid"; // Correct import for UUID
+import { api } from "@/convex/_generated/api";
 
 function SignInDialog({ openDialog, closeDialog }) {
-  const { User, setUser } = useContext(UserDetailContext);
+  const { setUser } = useContext(UserDetailContext); // User is not being used directly
+
+  const CreateUser = useMutation(api.users.CreateUser); // Convex mutation to create a user
 
   // Google Login Function
   const googleLogin = useGoogleLogin({
@@ -25,22 +30,42 @@ function SignInDialog({ openDialog, closeDialog }) {
           "https://www.googleapis.com/oauth2/v3/userinfo",
           {
             headers: {
-              Authorization: `Bearer ${tokenResponse?.access_token}`, // Fix: Added a space after "Bearer"
+              Authorization: `Bearer ${tokenResponse?.access_token}`, // Ensure proper header formatting
             },
           }
         );
 
-        // Set user details in the context
-        setUser(userInfo?.data);
+        const user = userInfo.data;
+
+        // Save user in Convex
+        const newUser = {
+          name: user?.name,
+          email: user?.email,
+          picture: user?.picture,
+          uid: uuidv4(),
+        };
+
+        await CreateUser(newUser);
+
+        // Set user details in context
+        setUser(newUser);
+
+        // Save user details in localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem("user", JSON.stringify(newUser));
+        }
 
         // Close the dialog after successful login
         closeDialog(false);
       } catch (error) {
-        console.error("Failed to fetch user information:", error);
+        console.error("Failed to fetch or save user information:", error);
+        alert("An error occurred while signing in. Please try again.");
       }
     },
-    onError: (errorResponse) =>
-      console.error("Google Login Error:", errorResponse),
+    onError: (errorResponse) => {
+      console.error("Google Login Error:", errorResponse);
+      alert("Google Login failed. Please try again.");
+    },
   });
 
   return (
