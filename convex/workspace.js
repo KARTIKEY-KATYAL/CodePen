@@ -41,3 +41,24 @@ export const Getworkspaces = query({
     return result;
   },
 });
+
+
+export const UpdateMessages = mutation({
+  args: {
+    workspaceId: v.id("workspace"),
+    messages: v.any(),
+  },
+  handler: async (ctx, args) => {
+    try {
+      // Ensure correct usage of workspaceId
+      const result = await ctx.db.patch(args.workspaceId, {
+        messages: args.messages,
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Error updating messages:", error);
+      throw new Error("Failed to update messages");
+    }
+  },
+});
