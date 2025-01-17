@@ -97,7 +97,7 @@ function Chatview() {
 
   return (
     <main
-      className="w-3/4 h-[75vh] p-6 rounded-md flex flex-col"
+      className="w-3/4 h-[80vh] p-6 rounded-md flex flex-col"
       style={{ backgroundColor: Colors.BACKGROUND }}
     >
       {loading && (
